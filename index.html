@@ -1,0 +1,69 @@
+<head>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.37/vue.global.prod.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css"/>
+  </head>
+  <body>
+    <div id="app">
+      <div id="appWindow" style="display: none" :style="{ display: 'grid' }" :class="{ contrast: contrast, handling: draggedPoint !== null }" @mousemove="(e) =&gt; (!isMobile ? setPos(e) : '')" @touchmove="(e) =&gt; setPos(e)" @mouseup="(e) =&gt; (!isMobile ? (e.which === 1 ? unselectPoint() : '') : '')" @keyup="(e) =&gt; interpretKey(false, e)" @keydown="(e) =&gt; interpretKey(true, e)" tabindex="0">
+        <div id="layout">
+          <div id="ui">
+            <div class="responsive_hidden" id="uiActionsTitle">
+              <div class="title">Path actions</div>
+            </div>
+            <div id="uiActions">
+              <div id="uiActionsList">
+                <button @click="addPoint" data-wording="+"></button>
+                <button @click="delPoint" data-wording="-"></button>
+                <button @click="copyPathText" data-wording="copy"></button>
+                <button @click="contrast = !contrast" :class="{ active: contrast }" data-wording="contrast"></button>
+                <button @click="gridSnap = !gridSnap" title="you can also press shift" :class="{ active: gridSnap }" data-wording="grid"></button>
+                <button @click="resetConfirm ? initPath() + (resetConfirm = false) : (resetConfirm = true)" @mouseleave="resetConfirm = false" @blur="resetConfirm = false" :data-wording="resetConfirm ? 'reset ?' : 'reset'"></button>
+              </div>
+            </div>
+          </div>
+          <div id="pathDraw" :class="{ grid: gridSnap }" @mouseup="(e) =&gt; (isMobile ? (e.which === 1 ? unselectPoint() : '') : '')" ref="pathDraw" @keypress="test">
+            <div id="clipDisplayShadow">
+              <div id="clipDisplay" :class="{ active: draggedPoint !== null }" :style="currentClipPath"></div>
+            </div>
+            <div class="handle" v-for="(point, index) of paths[currentPath]" :key="index" @mousedown="(e) =&gt; (!isMobile ? (e.which === 1 ? selectPoint(index) : '') : '')" @touchstart="(e) =&gt; (isMobile ? unselectPoint() : '')" @touchend="(e) =&gt; (isMobile ? unselectPoint() : '')" :class="{ handled: index === draggedPoint, selected: index === lastSelected }" :style="{ '--posX': point.x, '--posY': point.y }"></div>
+          </div>
+          <div class="responsive_hidden" id="defaultShapesTitle">
+            <div class="title">presets</div>
+          </div>
+          <div class="actions-list-container" id="defaultShapesList">
+            <div class="actions-list">
+              <button class="action" v-for="(shape, index) of defaultShapes" :key="`default_${index}`" :title="shape.name" @click="loadDefaultPath(index)">
+                <div class="shape-display-container">
+                  <div class="shape-display" :style="`${pathFromPoints(shape.points)};`"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div id="saveActions">
+            <div class="responsive_hidden" id="saveTitle">
+              <div class="title">saves</div>
+            </div>
+            <div id="saveActionsUi">
+              <button @click="addPath" data-wording="+"></button>
+              <button @mouseleave="deleteConfirm = false" @blur="deleteConfirm = false" @click="deleteConfirm ? deleteSave() + (deleteConfirm = false) : (deleteConfirm = true)" :disabled="paths.length &lt;= 1" :data-wording="deleteConfirm ? '?' : '-'"></button>
+            </div>
+          </div>
+          <div class="actions-list-container" id="savedPathsListContainer" ref="savedPathsList">
+            <div class="actions-list">
+              <button class="action" v-for="(savedPath, index) of paths" :class="{ 'current-save-slot': currentPath === index }" :key="`saved_path_${index}`" @click="(currentPath = index) + (lastSelected = null)">
+                <div class="shape-display-container">
+                  <div class="shape-display" :style="`${pathFromPoints(savedPath)};`"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <textarea id="result" ref="textInput" @input="interpretTextPath(currentPathTxt)" v-model="currentPathTxt"></textarea>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <script src="assets/js/script.js"></script>
+    </footer>
+  </body>
+</head>
