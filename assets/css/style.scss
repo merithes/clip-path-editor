@@ -1,0 +1,418 @@
+---
+---
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
+$smallShadows: 0.25em 0.25em 0.5em var(--darkShadow),
+	-0.25em -0.25em 0.5em var(--lightShadow), inset 0 0 0 var(--darkShadow),
+	inset 0 0 0 var(--lightShadow);
+$invertedSmallShadows: 0 0 0 var(--darkShadow), 0 0 0 var(--lightShadow),
+	inset 0.25em 0.25em 0.75em var(--darkShadow),
+	inset -0.25em -0.25em 0.75em var(--lightShadow);
+$bigShadows: 0.5em 0.5em 1.5em var(--darkShadow),
+	-0.5em -0.5em 1.5em var(--lightShadow);
+$invertedBigShadows: inset 0.5em 0.5em 1.5em var(--darkShadow),
+	inset -0.5em -0.5em 1.5em var(--lightShadow);
+body {
+	margin: 0;
+	height: 100vh;
+	background-color: #b5b5b5;
+	--background: hsl(var(--colorRot), 51%, 71%);
+	--darkShadow: hsl(var(--colorRot), 32%, 60%);
+	--lightShadow: hsl(var(--colorRot), 94%, 82%);
+	background-color: var(--background);
+	#app {
+		* {
+			text-transform: uppercase;
+			font-family: "Space Mono", monospace, sans;
+			color: #222;
+			font-weight: bold;
+			scrollbar-width: none;
+			&::-webkit-scrollbar {
+				display: block;
+			}
+		}
+		#appWindow {
+			/****
+			** Variables setting
+			*****/
+			--borderColor: #0000;
+			--shapeColor: var(--background);
+			--handleShadows: #{$smallShadows};
+			--handleColor: var(--background);
+			&.contrast {
+				--borderColor: #0008;
+				--shapeColor: hsl(var(--colorRot), 30%, 29%);
+				--handleShadows: none;
+				--handleColor: transparent;
+				--darkShadow: #0000;
+				--lightShadow: #0000;
+			}
+			&.handling {
+				cursor: none;
+			}
+			@media (min-width: 768px) {
+				.responsive {
+					display: none !important;
+				}
+			}
+			@media (max-width: 767px) {
+				.responsive_hidden {
+					display: none !important;
+				}
+			}
+
+			/****
+			** Layout display
+			*****/
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.5s ease;
+			background-color: var(--background);
+			height: 100vh;
+			width: 100vw;
+			#layout {
+				/****
+				** Layout properties
+				*****/
+				display: grid;
+				grid-template-columns: 0.5fr repeat(3, 1fr) 0.5fr;
+				grid-template-rows: 0.5fr repeat(3, 1fr) 0.5fr;
+				grid-template-areas:
+					"ptl ui_ ui_ ui_ stl"
+					"pst dsp dsp dsp sav"
+					"pst dsp dsp dsp sav"
+					"pst dsp dsp dsp sav"
+					"edt edt edt edt edt";
+				width: MIN(100vh, 100vw, 700px);
+				height: MIN(100vh, 100vw, 700px);
+				padding: 1em;
+				box-sizing: border-box;
+				grid-gap: 1em;
+				@media (max-width: 767px) {
+					display: flex;
+					flex-direction: column;
+					height: 100vh;
+					width: 100vw;
+					overflow-x: hidden;
+				}
+
+				/****
+				** Generic elements
+				*****/
+				.title {
+					display: inline-block;
+					box-shadow: $invertedSmallShadows;
+					padding: 0.2em 0.4em;
+					border-radius: 5px;
+				}
+				button {
+					position: relative;
+					cursor: pointer;
+					border: 2px solid var(--borderColor);
+					background-color: #0000;
+					padding: 0.7em;
+					line-height: 1;
+					transition: all 0.05s ease-out;
+					box-shadow: $smallShadows;
+					border-radius: 5px;
+					&[data-wording] {
+						&::before {
+							content: attr(data-wording);
+							opacity: 0;
+						}
+						&::after {
+							transition: all 0.05s ease-out;
+							content: attr(data-wording);
+							position: absolute;
+							top: 50%;
+							left: 50%;
+							transform: translate(-50%, -50%);
+							z-index: 1;
+						}
+					}
+					&:not([disabled]):hover {
+						box-shadow: $invertedSmallShadows;
+						&[data-wording]::after {
+							transform: translate(-50%, -50%) scale(0.95);
+						}
+					}
+					&.active {
+						box-shadow: $invertedSmallShadows;
+						background: 2px 2px / calc(100% - 4px) calc(100% - 4px)
+							linear-gradient(#0f05, #0f05) no-repeat;
+					}
+					&[disabled] {
+						background: 2px 2px / calc(100% - 2px) calc(100% - 2px)
+							linear-gradient(#f005, #f005) no-repeat;
+						box-shadow: $invertedSmallShadows;
+						cursor: not-allowed;
+					}
+				}
+
+				/****
+				** Top UI
+				*****/
+				#ui {
+					grid-area: ui_;
+					display: flex;
+					flex-direction: column;
+					#uiActionsTitle {
+						flex-grow: 1;
+					}
+					#uiActions {
+						column-gap: 1em;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						#uiActionsList {
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							width: 100%;
+						}
+						@media (max-width: 767px) {
+							#uiActionsList {
+								overflow-x: scroll;
+								display: flex;
+								flex-direction: row;
+								margin: -1em 0;
+								padding: 1em;
+								column-gap: 1em;
+							}
+						}
+					}
+				}
+
+				/****
+				** Path drawing board
+				*****/
+				#pathDraw {
+					border: 2px solid var(--borderColor);
+					grid-area: dsp;
+					user-select: none;
+					border-radius: 5px;
+					box-shadow: $bigShadows;
+					position: relative;
+					@media (max-width: 767px) {
+						width: calc(100vw - 2em);
+						height: calc(100vw - 2em);
+						flex-shrink: 0;
+					}
+					&.grid {
+						--shapeColor: hsl(var(--colorRot), 30%, 29%);
+						&::before {
+							content: "";
+							display: block;
+							position: absolute;
+							border-radius: 6px;
+							top: 0;
+							left: 0;
+							right: 0;
+							bottom: 0;
+							pointer-events: none;
+							background: 0 0 / 20% 20% url(var(--grid));
+							z-index: 3;
+						}
+					}
+					#clipDisplayShadow {
+						position: absolute;
+						left: 0;
+						right: 0;
+						top: 0;
+						bottom: 0;
+						filter: drop-shadow(0.25em 0.25em 0.4em var(--darkShadow))
+							drop-shadow(-0.25em -0.25em 0.4em var(--lightShadow));
+						box-sizing: border-box;
+						#clipDisplay {
+							height: 100%;
+							width: 100%;
+							background-size: cover;
+							background-color: var(--shapeColor);
+							pointer-events: none;
+						}
+					}
+					.handle {
+						z-index: 20;
+						height: 21px;
+						width: 21px;
+						border-radius: 50%;
+						box-shadow: var(--handleShadows);
+						background-color: var(--handleColor);
+						cursor: grab;
+						position: absolute;
+						left: calc(var(--posX) * 1%);
+						top: calc(var(--posY) * 1%);
+						transform: translate(-50%, -50%);
+						border: 2px solid var(--borderColor);
+						z-index: 1;
+						&.handled,
+						&.selected {
+							border: 2px solid #0008;
+							box-shadow: unset;
+							background-color: #0000;
+							z-index: 2;
+						}
+						&.handled {
+							cursor: none;
+							&::after {
+								content: "";
+								display: block;
+								position: absolute;
+								height: 100%;
+								width: 100%;
+								border-radius: 100vh;
+								box-shadow: 0 0 5em red;
+							}
+						}
+					}
+				}
+
+				/****
+				** default shapes
+				*****/
+				#defaultShapesTitle {
+					grid-area: ptl;
+					text-align: center;
+				}
+				#defaultShapesList {
+					grid-area: pst;
+				}
+
+				/****
+				** Saves
+				*****/
+				#saveActions {
+					grid-area: stl;
+					display: flex;
+					flex-direction: column;
+					#saveTitle {
+						text-align: center;
+						flex-grow: 1;
+					}
+					#saveActionsUi {
+						display: grid;
+						grid-template-columns: 1fr 1fr;
+						grid-column-gap: 0.5em;
+					}
+				}
+				#savedPathsListContainer {
+					grid-area: sav;
+				}
+
+				/****
+				** Result textarea
+				*****/
+				#result {
+					border: 2px solid var(--borderColor);
+					grid-area: edt;
+					border-radius: 5px;
+					background-color: #0000;
+					resize: none;
+					text-transform: none;
+					font-weight: 500;
+					line-height: 1;
+					overflow-y: auto;
+					padding: 0.5em;
+					box-shadow: $smallShadows;
+				}
+
+				/****
+				** General ctions
+				*****/
+				.actions-list-container {
+					border: 2px solid var(--borderColor);
+					box-shadow: $invertedSmallShadows;
+					border-radius: 5px;
+					.actions-list {
+						display: flex;
+						width: 100%;
+						height: 100%;
+						box-sizing: border-box;
+						justify-content: flex-start;
+						flex-direction: column;
+						row-gap: 0.5em;
+						padding: 1em;
+						mask: linear-gradient(red calc(100% - 2em), #0000);
+						overflow-y: scroll;
+						overflow-x: hidden;
+						scrollbar-width: none;
+						&::-webkit-scrollbar {
+							display: none;
+						}
+
+						.action {
+							width: 100%;
+							display: block;
+							padding: 0;
+							cursor: pointer;
+							position: relative;
+							background-color: #0000;
+							border: 2px solid var(--borderColor);
+
+							@media (max-width: 767px) {
+								width: 50px;
+								height: 50px;
+							}
+							&::before {
+								content: "";
+								display: block;
+								padding-bottom: 100%;
+							}
+							&:hover .shape-display {
+								transform: scale(0.9);
+							}
+							.shape-display-container {
+								transition: all 0.05s ease-out;
+								filter: drop-shadow(0.15em 0.15em 0.1em var(--darkShadow))
+									drop-shadow(-0.15em -0.15em 0.1em var(--lightShadow));
+								position: absolute;
+								top: 0;
+								bottom: 0;
+								right: 0;
+								left: 0;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								.shape-display {
+									height: 80%;
+									width: 80%;
+									background-color: var(--shapeColor);
+									filter: brightness(0.9);
+								}
+							}
+							&.current-save-slot {
+								box-shadow: $invertedSmallShadows;
+								.shape-display {
+									transform: scale(0.9);
+								}
+								border: 2px solid var(--darkShadow);
+							}
+						}
+					}
+
+					@media (max-width: 767px) {
+						box-shadow: none;
+						border: none;
+						.actions-list {
+							border: none;
+							flex-direction: row;
+							overflow-x: scroll;
+							overflow-y: hidden;
+							align-items: center;
+							padding: 0.5em;
+							column-gap: 1em;
+							mask: none;
+							.action {
+								flex-shrink: 0;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+:root {
+	--grid: "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cline y2='0' y1='0' x1='0' stroke='%23000' fill='none' x2='100' stroke-width='2'/%3E%3Cline x2='100' y1='10' x1='0' fill='none' stroke='%230005' y2='10' stroke-width='2'/%3E%3Cline y2='20' x2='100' y1='20' x1='0' fill='none' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' fill='none' y2='30' x2='100' y1='30' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' y2='40' y1='40' fill='none' x2='100' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' fill='none' x2='100' y1='50' y2='50' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' fill='none' x2='100' y2='60' y1='60' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' y2='70' y1='70' fill='none' x2='100' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' y2='80' x2='100' y1='80' fill='none' stroke='%230005' stroke-width='2'/%3E%3Cline x1='0' x2='100' fill='none' y1='90' y2='90' stroke='%230005' stroke-width='2'/%3E%3Cline y1='0' y2='100' fill='none' stroke='%23000' x1='0' x2='0' stroke-width='2'/%3E%3Cline fill='none' x1='10' y1='0' x2='10' stroke='%230005' y2='100' stroke-width='2'/%3E%3Cline x2='20' x1='20' fill='none' y1='0' stroke='%230005' y2='100' stroke-width='2'/%3E%3Cline x2='30' x1='30' fill='none' y1='0' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline x2='40' x1='40' fill='none' y1='0' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline fill='none' y1='0' x1='50' x2='50' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline x2='60' x1='60' fill='none' y1='0' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline fill='none' y1='0' x1='70' x2='70' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline fill='none' y1='0' x1='80' x2='80' y2='100' stroke='%230005' stroke-width='2'/%3E%3Cline x2='90' x1='90' fill='none' y1='0' y2='100' stroke='%230005' stroke-width='2'/%3E%3C/svg%3E";
+}
