@@ -1,0 +1,107 @@
+---
+title: Hello
+---
+head
+	head
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.37/vue.global.prod.min.js")
+		link(rel='stylesheet', type='text/css', href='style.css')
+	body
+		#app
+			#appWindow(
+				style="display: none",
+				:style="{ display: 'grid' }",
+				:class="{ contrast: contrast, handling: draggedPoint !== null }",
+				@mousemove="(e) => (!isMobile ? setPos(e) : '')",
+				@touchmove="(e) => setPos(e)",
+				@mouseup="(e) => (!isMobile ? (e.which === 1 ? unselectPoint() : '') : '')",
+				@keyup="(e) => interpretKey(false, e)",
+				@keydown="(e) => interpretKey(true, e)",
+				tabindex=0
+			)
+				#layout
+					#ui
+						#uiActionsTitle.responsive_hidden
+							.title Path actions
+						#uiActions
+							#uiActionsList
+								button(@click="addPoint", data-wording="+")
+								button(@click="delPoint", data-wording="-")
+								button(@click="copyPathText", data-wording="copy")
+								button(
+									@click="contrast = !contrast",
+									:class="{ active: contrast }",
+									data-wording="contrast"
+								)
+								button(
+									@click="gridSnap = !gridSnap",
+									title="you can also press shift",
+									:class="{ active: gridSnap }",
+									data-wording="grid"
+								)
+								button(
+									@click="resetConfirm ? initPath() + (resetConfirm = false) : (resetConfirm = true)",
+									@mouseleave="resetConfirm = false",
+									@blur="resetConfirm = false",
+									:data-wording="resetConfirm ? 'reset ?' : 'reset'"
+								)
+					#pathDraw(
+						:class="{ grid: gridSnap }",
+						@mouseup="(e) => (isMobile ? (e.which === 1 ? unselectPoint() : '') : '')",
+						ref="pathDraw",
+						@keypress="test"
+					)
+						#clipDisplayShadow
+							#clipDisplay(
+								:class="{ active: draggedPoint !== null }",
+								:style="currentClipPath"
+							)
+						.handle(
+							v-for="(point, index) of paths[currentPath]",
+							:key="index",
+							@mousedown="(e) => (!isMobile ? (e.which === 1 ? selectPoint(index) : '') : '')",
+							@touchstart="(e) => (isMobile ? unselectPoint() : '')",
+							@touchend="(e) => (isMobile ? unselectPoint() : '')",
+							:class="{ handled: index === draggedPoint, selected: index === lastSelected }",
+							:style="{ '--posX': point.x, '--posY': point.y }"
+						)
+					#defaultShapesTitle.responsive_hidden
+						.title presets
+					#defaultShapesList.actions-list-container
+						.actions-list
+							button.action(
+								v-for="(shape, index) of defaultShapes",
+								:key="`default_${index}`",
+								:title="shape.name",
+								@click="loadDefaultPath(index)"
+							)
+								.shape-display-container
+									.shape-display(:style="`${pathFromPoints(shape.points)};`")
+					#saveActions
+						#saveTitle.responsive_hidden
+							.title saves
+						#saveActionsUi
+							button(@click="addPath", data-wording="+")
+							button(
+								@mouseleave="deleteConfirm = false",
+								@blur="deleteConfirm = false",
+								@click="deleteConfirm ? deleteSave() + (deleteConfirm = false) : (deleteConfirm = true)",
+								:disabled="paths.length <= 1",
+								:data-wording="deleteConfirm ? '?' : '-'"
+							)
+					#savedPathsListContainer.actions-list-container(ref="savedPathsList")
+						.actions-list
+							button.action(
+								v-for="(savedPath, index) of paths",
+								:class="{ 'current-save-slot': currentPath === index }",
+								:key="`saved_path_${index}`",
+								@click="(currentPath = index) + (lastSelected = null)"
+							)
+								.shape-display-container
+									.shape-display(:style="`${pathFromPoints(savedPath)};`")
+					textarea#result(
+						ref="textInput",
+						@input="interpretTextPath(currentPathTxt)",
+						v-model="currentPathTxt"
+					)
+		footer
+			script(src="/script.js")
